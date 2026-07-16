@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prioritas Tindakan - Smart Livestock System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    if (localStorage.getItem("userLoggedIn") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+  <style>
+    /* Count grid modern & flat */
+    .notif-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 768px) {
+      .notif-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+    .notif-stat-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: none;
+    }
+    .notif-stat-card h4 {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .notif-stat-card .count {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    /* Override notif-card style local agar flat & clean */
+    .notif-card {
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      border-left: 5px solid #94a3b8;
+      transition: none; /* hapus translate hover */
+    }
+    .notif-card:hover {
+      transform: none;
+      background: #f8fafc;
+    }
+    .notif-card.notif-kritis { border-left-color: var(--color-danger); }
+    .notif-card.notif-warning { border-left-color: var(--color-warningg); } /* Kuning: Saran Tindakan */
+    .notif-card.notif-panen { border-left-color: var(--color-success); }  /* Hijau: Saran Panen */
+
+    /* Badge colors */
+    .badge-danger { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .badge-warning { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .badge-success { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigasi -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/icons/logo.png" alt="Smart Livestock Logo" class="logo-icon" onerror="this.src='assets/icons/profile.png'">
+        <h3>LivestockPro</h3>
+      </div>
+      <hr>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link"><img src="assets/icons/dashboard.png" alt="Dashboard"> <span>Dashboard</span></a>
+        <a href="goat.html" class="nav-link"><img src="assets/icons/goat.png" alt="Goat List"> <span>Goat List</span></a>
+        <a href="weighing.html" class="nav-link"><img src="assets/icons/weighing.png" alt="Weighing"> <span>Weighing</span></a>
+        <a href="notifications.html" class="nav-link active"><img src="assets/icons/application.png" alt="Notifications"> <span>Notifications</span></a>
+        <a href="settings.html" class="nav-link"><img src="assets/icons/settings.png" alt="Settings"> <span>Settings</span></a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <img src="assets/icons/user.png" alt="Avatar" class="user-avatar" id="userAvatar">
+          <div class="user-info">
+            <span class="user-name">Manager</span>
+            <span class="user-role">Livestock Manager</span>
+          </div>
+          <a href="#" id="logoutBtn" class="logout-btn" title="Keluar">
+            <img src="assets/icons/logout.png" alt="Logout">
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Mobile viewport) -->
+    <div class="bottom-nav">
+      <a href="index.html" class="bottom-nav-link"><img src="assets/icons/dashboard.png" alt="Dashboard"> <span>Dashboard</span></a>
+      <a href="goat.html" class="bottom-nav-link"><img src="assets/icons/goat.png" alt="Goats"> <span>Goats</span></a>
+      <a href="weighing.html" class="bottom-nav-link"><img src="assets/icons/weighing.png" alt="Weighing"> <span>Weighing</span></a>
+      <a href="notifications.html" class="bottom-nav-link active"><img src="assets/icons/application.png" alt="Alerts"> <span>Alerts</span></a>
+      <a href="settings.html" class="bottom-nav-link"><img src="assets/icons/settings.png" alt="Settings"> <span>Settings</span></a>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="main-content">
+      
+      <!-- Header Bar -->
+      <div class="header-bar" style="margin-bottom: 20px;">
+        <div class="title-section">
+          <h2>Prioritas Tindakan</h2>
+          <p>Daftar penanganan medis, keterlambatan timbang, dan kambing siap panen berdasarkan data real-time.</p>
+        </div>
+      </div>
+
+      <!-- Ringkasan Notifikasi (3 Kategori: Kritis (Merah), Tindakan (Kuning), Panen (Hijau)) -->
+      <div class="notif-stats-grid">
+        <!-- 1. Kritis -->
+        <div class="notif-stat-card" style="border-left: 4px solid var(--color-danger);">
+          <div>
+            <h4>Tindakan Kritis</h4>
+            <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">Susut Berat</p>
+          </div>
+          <div class="count" id="countKritis" style="color: var(--color-danger);">0</div>
+        </div>
+        <!-- 2. Saran Tindakan -->
+        <div class="notif-stat-card" style="border-left: 4px solid var(--color-warning);">
+          <div>
+            <h4>Saran Tindakan</h4>
+            <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">Terlambat / ADG Lambat</p>
+          </div>
+          <div class="count" id="countWarning" style="color: var(--color-warning);">0</div>
+        </div>
+        <!-- 3. Saran Panen -->
+        <div class="notif-stat-card" style="border-left: 4px solid var(--color-success);">
+          <div>
+            <h4>Saran Panen</h4>
+            <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">Siap Jual (Bobot Target)</p>
+          </div>
+          <div class="count" id="countPanen" style="color: var(--color-success);">0</div>
+        </div>
+      </div>
+
+      <!-- List Notifikasi -->
+      <div class="card">
+        <h3 style="font-size: 14px; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 18px;">
+          Tugas & Analisis Kondisi Ternak
+        </h3>
+        <div id="notificationsContainer">
+          <div style="text-align: center; padding: 40px; color: var(--text-muted); font-size:13px;">
+            Menganalisis data dari Firebase...
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module" src="js/notification.js"></script>
+  <script type="module">
+    const storedName = localStorage.getItem("userName");
+    if (storedName) document.getElementById("userName").innerText = storedName;
+
+    document.getElementById("logoutBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      if(confirm("Apakah Anda ingin keluar dari sistem?")) {
+        localStorage.removeItem("userLoggedIn");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

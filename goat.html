@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Kambing - Smart Livestock System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    if (localStorage.getItem("userLoggedIn") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+  <style>
+    /* Horizontal scroll pada tabel */
+    .table-scroll-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--border-color);
+    }
+    .table-scroll-wrapper .custom-table {
+      min-width: 780px;   /* paksa minimal lebar agar scroll aktif di layar kecil */
+      border-radius: 0;
+      border: none;
+    }
+
+    /* Filter bar layout */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-group label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .filter-select {
+      font-size: 13px;
+      padding: 7px 10px;
+      min-width: 120px;
+    }
+    .search-input-wrapper {
+      flex: 0 0 20px;
+      min-width: 153px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Sidebar Navigasi -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/icons/logo.png" alt="Smart Livestock Logo" class="logo-icon"
+             onerror="this.src='assets/icons/profile.png'">
+        <h3>LivestockPro</h3>
+      </div>
+      <hr>
+      <div class="nav-links">
+        <a href="index.html"         class="nav-link"><img src="assets/icons/dashboard.png"   alt="Dashboard">   <span>Dashboard</span></a>
+        <a href="goat.html"          class="nav-link active"><img src="assets/icons/goat.png" alt="Goat List">   <span>Goat List</span></a>
+        <a href="weighing.html"      class="nav-link"><img src="assets/icons/weighing.png"    alt="Weighing">    <span>Weighing</span></a>
+        <a href="notifications.html" class="nav-link"><img src="assets/icons/application.png" alt="Notifications"><span>Notifications</span></a>
+        <a href="settings.html"      class="nav-link"><img src="assets/icons/settings.png"    alt="Settings">    <span>Settings</span></a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <img src="assets/icons/user.png" alt="Avatar" class="user-avatar" id="userAvatar">
+          <div class="user-info">
+            <span class="user-name">Manager</span>
+            <span class="user-role">Livestock Manager</span>
+          </div>
+          <a href="#" id="logoutBtn" class="logout-btn" title="Keluar">
+            <img src="assets/icons/logout.png" alt="Logout">
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Mobile) -->
+    <div class="bottom-nav">
+      <a href="index.html"         class="bottom-nav-link"><img src="assets/icons/dashboard.png"   alt="Dashboard">   <span>Dashboard</span></a>
+      <a href="goat.html"          class="bottom-nav-link active"><img src="assets/icons/goat.png" alt="Goats">       <span>Goats</span></a>
+      <a href="weighing.html"      class="bottom-nav-link"><img src="assets/icons/weighing.png"    alt="Weighing">    <span>Weighing</span></a>
+      <a href="notifications.html" class="bottom-nav-link"><img src="assets/icons/application.png" alt="Alerts">      <span>Alerts</span></a>
+      <a href="settings.html"      class="bottom-nav-link"><img src="assets/icons/settings.png"    alt="Settings">    <span>Settings</span></a>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="main-contentt">
+
+      <!-- Header Bar -->
+      <div class="header-bar">
+        <div class="title-section">
+          <h2>Livestock Management</h2>
+          <p>Manage and track your active goat inventory.</p>
+        </div>
+        <div>
+          <a href="register.html" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px;">
+            <img src="assets/icons/add.png" alt="Add"
+                 style="width:16px; height:16px; filter:brightness(0) invert(1);"
+                 onerror="this.style.display='none'">
+            Add New Goat
+          </a>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+
+        <!-- Search -->
+        <div class="search-input-wrapper">
+          <input type="text" id="searchInput" class="form-control"
+                 placeholder="Cari ....">
+        </div>
+
+        <!-- Filter Kandang -->
+        <div class="filter-group">
+          <label>Kandang:</label>
+          <select id="filterPen" class="form-control filter-select">
+            <option value="ALL">Semua</option>
+            <option value="Kandang A">A</option>
+            <option value="Kandang B">B</option>
+            <option value="Kandang C">C</option>
+          </select>
+        </div>
+
+        <!-- Filter Jenis Kambing -->
+        <div class="filter-group">
+          <label>Jenis:</label>
+          <select id="filterBreed" class="form-control filter-select">
+            <option value="ALL">Semua</option>
+            <option value="Moreno">Moreno</option>
+            <option value="Ersip">Ersip</option>
+            <option value="Bulu Bakar">Bulu Bakar</option>
+            <option value="Dolfer">Dolferk</option>
+            <option value="Sulfok">Sulfok</option>
+            <option value="Kambing Sayur">Kambing Sayur</option>
+          </select>
+        </div>
+
+        <!-- Filter Status (hanya Healthy & Monitoring) -->
+        <div class="filter-group">
+          <label>Status:</label>
+          <select id="filterStatus" class="form-control filter-select">
+            <option value="ALL">Semua</option>
+            <option value="Healthy">Healthy</option>
+            <option value="Monitoring">Monitoring</option>
+          </select>
+        </div>
+
+        <!-- Filter Penimbangan -->
+        <div class="filter-group">
+          <label>Timbangan:</label>
+          <select id="filterWeighing" class="form-control filter-select">
+            <option value="ALL">Semua</option>
+            <option value="NEVER">Belum Ditimbang</option>
+            <option value="OVERDUE_30">Melebihi 30 Hari</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Table — horizontal scroll -->
+      <div class="table-scroll-wrapper">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>RFID No.</th>
+              <th>Nama</th>
+              <th>Jenis Kambing</th>
+              <th>Jenis Kelamin</th>
+              <th style="text-align:center;">Kandang</th>
+              <th>Berat Terakhir</th>
+              <th>Status</th>
+              <th style="text-align:center;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="goatTableBody">
+            <tr>
+              <td colspan="9" style="text-align:center; color:var(--text-muted); padding:40px 0;">
+                Memuat data kambing...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">Showing 0–0 of 0 entries</div>
+        <div class="pagination-buttons" id="paginationButtons">
+          <button class="page-btn" disabled>&lt;</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn" disabled>&gt;</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module" src="js/goat.js"></script>
+  <script type="module">
+    const storedName = localStorage.getItem("userName");
+    if (storedName) document.getElementById("userName").innerText = storedName;
+
+    document.getElementById("logoutBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      if (confirm("Apakah Anda ingin keluar dari sistem?")) {
+        localStorage.removeItem("userLoggedIn");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penimbangan - Smart Livestock System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    if (localStorage.getItem("userLoggedIn") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+  <style>
+    .weighing-screen {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .weighing-screen { grid-template-columns: 1fr; } }
+
+    /* Weight display panel */
+    .weight-panel {
+      background: linear-gradient(145deg, #0f172a 0%, #064e3b 100%);
+      border-radius: 16px;
+      padding: 36px 28px;
+      text-align: center;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(6,78,59,0.18);
+    }
+    .weight-panel::before {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(16,185,129,0.07);
+    }
+    .weight-panel-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .weight-readout {
+      font-size: 72px;
+      font-weight: 800;
+      color: #10b981;
+      font-family: 'Outfit', monospace;
+      line-height: 1;
+      text-shadow: 0 0 30px rgba(16,185,129,0.3);
+    }
+    .weight-unit {
+      font-size: 22px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* Sensor info strip */
+    .sensor-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 28px;
+    }
+    .sensor-chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: left;
+    }
+    .sensor-chip h6 {
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .sensor-chip p {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      margin-top: 4px;
+    }
+
+    /* Form card */
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .form-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-card-title .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    /* Preview strip */
+    .preview-strip {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+    }
+    .preview-item h6 {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .preview-item p {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 3px;
+    }
+    .msg-box { display: none; padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; font-weight: 600; }
+    .msg-success { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+    .msg-danger  { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <img src="assets/icons/logo.png" alt="Logo" class="logo-icon"
+           onerror="this.src='assets/icons/profile.png'">
+      <h3>LivestockPro</h3>
+    </div>
+    <hr>
+    <div class="nav-links">
+      <a href="index.html"         class="nav-link"><img src="assets/icons/dashboard.png"    alt="Dashboard">    <span>Dashboard</span></a>
+      <a href="goat.html"          class="nav-link"><img src="assets/icons/goat.png"         alt="Goat List">    <span>Goat List</span></a>
+      <a href="weighing.html"      class="nav-link active"><img src="assets/icons/weighing.png" alt="Weighing"> <span>Weighing</span></a>
+      <a href="notifications.html" class="nav-link"><img src="assets/icons/application.png"  alt="Notif">        <span>Notifications</span></a>
+      <a href="settings.html"      class="nav-link"><img src="assets/icons/settings.png"     alt="Settings">     <span>Settings</span></a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <img src="assets/icons/user.png" alt="Avatar" class="user-avatar">
+        <div class="user-info">
+          <span class="user-name">Manager</span>
+          <span class="user-role">Livestock Manager</span>
+        </div>
+        <a href="#" id="logoutBtn" class="logout-btn" title="Keluar">
+          <img src="assets/icons/logout.png" alt="Logout">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <a href="index.html"         class="bottom-nav-link"><img src="assets/icons/dashboard.png"    alt="Dashboard">    <span>Dashboard</span></a>
+    <a href="goat.html"          class="bottom-nav-link"><img src="assets/icons/goat.png"         alt="Goats">        <span>Goats</span></a>
+    <a href="weighing.html"      class="bottom-nav-link active"><img src="assets/icons/weighing.png" alt="Weighing"> <span>Weighing</span></a>
+    <a href="notifications.html" class="bottom-nav-link"><img src="assets/icons/application.png"  alt="Alerts">       <span>Alerts</span></a>
+    <a href="settings.html"      class="bottom-nav-link"><img src="assets/icons/settings.png"     alt="Settings">     <span>Settings</span></a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <div class="header-bar" style="margin-bottom:20px;">
+      <div class="title-section">
+        <h2>Penimbangan Ternak</h2>
+        <p>Catat berat badan kambing. Setiap rekaman tersimpan sebagai riwayat pertumbuhan.</p>
+      </div>
+    </div>
+
+    <div class="weighing-screen">
+
+      <!-- KIRI: Tampilan berat live -->
+      <div class="weight-panel">
+        <div class="weight-panel-label">Pembacaan Timbangan</div>
+        <div class="weight-readout" id="weightDisplay">0.0</div>
+        <div class="weight-unit">kg</div>
+
+        <div class="sensor-strip">
+          <div class="sensor-chip">
+            <h6>Status Sensor</h6>
+            <p style="color:#6ee7b7;">● Online</p>
+          </div>
+          <div class="sensor-chip">
+            <h6>Mode Input</h6>
+            <p id="modeLabel">Manual</p>
+          </div>
+          <div class="sensor-chip">
+            <h6>Waktu</h6>
+            <p id="clockDisplay">–</p>
+          </div>
+          <div class="sensor-chip">
+            <h6>Tanggal</h6>
+            <p id="dateDisplay">–</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KANAN: Form timbang -->
+      <div class="form-card">
+        <div class="form-card-title">
+          <span class="dot"></span> Input Penimbangan
+        </div>
+
+        <!-- Message box -->
+        <div id="msgBox" class="msg-box"></div>
+
+        <!-- Select kambing -->
+        <div class="form-group">
+          <label for="goatSelect">Pilih Kambing</label>
+          <select id="goatSelect" class="form-control" required>
+            <option value="">Memuat daftar kambing…</option>
+          </select>
+        </div>
+
+        <!-- Preview info kambing terpilih -->
+        <div class="preview-strip" id="previewStrip">
+          <div class="preview-item">
+            <h6>Nama</h6>
+            <p id="previewName">–</p>
+          </div>
+          <div class="preview-item">
+            <h6>Berat Terakhir</h6>
+            <p id="previewLastWt">–</p>
+          </div>
+          <div class="preview-item">
+            <h6>Ditimbang</h6>
+            <p id="previewDaysSince">–</p>
+          </div>
+          <div class="preview-item">
+            <h6>ADG Terakhir</h6>
+            <p id="previewAdg">–</p>
+          </div>
+        </div>
+
+        <!-- Berat badan -->
+        <div class="form-group" style="margin-top:16px;">
+          <label for="weightInput">Berat Badan (kg)</label>
+          <input type="number" id="weightInput" class="form-control"
+                 placeholder="Contoh: 32.5" min="0.1" max="200" step="0.1">
+        </div>
+
+        <!-- Metode -->
+        <div class="form-group">
+          <label for="methodSelect">Metode Timbang</label>
+          <select id="methodSelect" class="form-control">
+            <option value="Manual">Manual</option>
+            <option value="RFID">RFID Otomatis</option>
+            <option value="Timbangan Digital">Timbangan Digital</option>
+          </select>
+        </div>
+
+        <!-- Tombol simpan -->
+        <button class="btn btn-primary" id="btnSaveWeighing"
+                style="width:100%; margin-top:10px; font-size:14px; padding:13px;">
+          Simpan Timbangan
+        </button>
+
+      </div><!-- /form-card -->
+
+    </div><!-- /weighing-screen -->
+
+  </div><!-- /main-content -->
+</div><!-- /app-container -->
+
+<script type="module" src="js/weighing.js"></script>
+<script type="module">
+  const name = localStorage.getItem("userName");
+  if (name) document.getElementById("userName").innerText = name;
+
+  document.getElementById("logoutBtn").addEventListener("click", e => {
+    e.preventDefault();
+    if (confirm("Keluar dari sistem?")) {
+      localStorage.removeItem("userLoggedIn");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userName");
+      window.location.href = "login.html";
+    }
+  });
+
+  // Live clock
+  function updateClock() {
+    const now  = new Date();
+    document.getElementById("clockDisplay").innerText =
+      now.toLocaleTimeString("id-ID", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", second: "2-digit" }) + " WIB";
+    document.getElementById("dateDisplay").innerText =
+      now.toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta", day: "numeric", month: "short", year: "numeric" });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Sync mode label
+  const methodSel = document.getElementById("methodSelect");
+  if (methodSel) {
+    methodSel.addEventListener("change", () => {
+      document.getElementById("modeLabel").innerText = methodSel.value;
+    });
+  }
+</script>
+</body>
+</html>

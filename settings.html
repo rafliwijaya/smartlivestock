@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan Sistem - Smart Livestock System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    if (localStorage.getItem("userLoggedIn") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigasi -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/icons/logo.png" alt="Smart Livestock Logo" class="logo-icon" onerror="this.src='assets/icons/profile.png'">
+        <h3>LivestockPro</h3>
+      </div>
+      <hr>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link" id="menu-dashboard">
+          <img src="assets/icons/dashboard.png" alt="Dashboard">
+          <span>Dashboard</span>
+        </a>
+        <a href="goat.html" class="nav-link" id="menu-goat">
+          <img src="assets/icons/goat.png" alt="Goat List">
+          <span>Goat List</span>
+        </a>
+        <a href="weighing.html" class="nav-link" id="menu-weighing">
+          <img src="assets/icons/weighing.png" alt="Weighing">
+          <span>Weighing</span>
+        </a>
+        <a href="notifications.html" class="nav-link" id="menu-notifications">
+          <img src="assets/icons/application.png" alt="Notifications">
+          <span>Notifications</span>
+        </a>
+        <a href="settings.html" class="nav-link active" id="menu-settings">
+          <img src="assets/icons/settings.png" alt="Settings">
+          <span>Settings</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <img src="assets/icons/user.png" alt="Avatar" class="user-avatar" id="userAvatar">
+          <div class="user-info">
+            <span class="user-name">Manager</span>
+            <span class="user-role">Livestock Manager</span>
+          </div>
+          <a href="#" id="logoutBtn" class="logout-btn" title="Keluar">
+            <img src="assets/icons/logout.png" alt="Logout">
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Mobile viewport) -->
+    <div class="bottom-nav">
+      <a href="index.html" class="bottom-nav-link">
+        <img src="assets/icons/dashboard.png" alt="Dashboard">
+        <span>Dashboard</span>
+      </a>
+      <a href="goat.html" class="bottom-nav-link">
+        <img src="assets/icons/goat.png" alt="Goats">
+        <span>Goats</span>
+      </a>
+      <a href="weighing.html" class="bottom-nav-link">
+        <img src="assets/icons/weighing.png" alt="Weighing">
+        <span>Weighing</span>
+      </a>
+      <a href="notifications.html" class="bottom-nav-link">
+        <img src="assets/icons/application.png" alt="Alerts">
+        <span>Alerts</span>
+      </a>
+      <a href="settings.html" class="bottom-nav-link active">
+        <img src="assets/icons/settings.png" alt="Settings">
+        <span>Settings</span>
+      </a>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="main-content">
+      
+      <!-- Header Bar -->
+      <div class="header-bar">
+        <div class="title-section">
+          <h2>Pengaturan Parameter</h2>
+          <p>Atur batas toleransi keputusan pertumbuhan dan konfigurasi pembacaan hardware timbangan ESP32.</p>
+        </div>
+      </div>
+
+      <!-- Settings Card -->
+      <div class="card" style="max-width: 600px; margin: 0 auto;">
+        
+        <!-- Status Box -->
+        <div id="messageBox" class="msg-box"></div>
+        
+        <form id="settingsForm">
+          
+          <!-- Target Bobot -->
+          <div class="form-group">
+            <label for="targetWeight">Target Bobot Kambing Siap Jual (kg)</label>
+            <input type="number" id="targetWeight" step="0.1" required class="form-control" placeholder="Contoh: 45.0">
+            <small style="color: var(--text-muted); font-size: 12px; display: block; margin-top: 6px;">
+              Batas berat minimal kambing untuk dikategorikan siap jual.
+            </small>
+          </div>
+          
+          <!-- Batas ADG Minimum -->
+          <div class="form-group" style="margin-top: 24px;">
+            <label for="minADG">Batas Pertumbuhan ADG Minimum (kg/hari)</label>
+            <input type="number" id="minADG" step="0.01" required class="form-control" placeholder="Contoh: 0.60">
+            <small style="color: var(--text-muted); font-size: 12px; display: block; margin-top: 6px;">
+              Jika ADG kambing di bawah nilai ini, sistem mendeteksinya sebagai kondisi "Monitoring" atau "Treatment".
+            </small>
+          </div>
+          
+          <!-- Batas Hari Belum Ditimbang -->
+          <div class="form-group" style="margin-top: 24px;">
+            <label for="warningDays">Batas Toleransi Hari Belum Ditimbang (Hari)</label>
+            <input type="number" id="warningDays" required class="form-control" placeholder="Contoh: 30">
+            <small style="color: var(--text-muted); font-size: 12px; display: block; margin-top: 6px;">
+              Kambing yang tidak memiliki riwayat timbang melebihi hari ini akan otomatis masuk dalam notifikasi peringatan.
+            </small>
+          </div>
+          
+          <!-- Waktu Stabilisasi Timbangan -->
+          <div class="form-group" style="margin-top: 24px;">
+            <label for="weighingStableTime">Waktu Stabil Timbangan ESP32 (Detik)</label>
+            <input type="number" id="weighingStableTime" required class="form-control" placeholder="Contoh: 5">
+            <small style="color: var(--text-muted); font-size: 12px; display: block; margin-top: 6px;">
+              Durasi beban stabil konstan yang diperlukan sensor load cell sebelum data dikirimkan otomatis .
+            </small>
+          </div>
+          
+          <!-- Simpan Button -->
+          <div style="margin-top: 30px;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              SIMPAN KONFIGURASI
+            </button>
+          </div>
+          
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module" src="js/settings.js"></script>
+  <script type="module">
+    // Display userName from localstorage
+    const storedName = localStorage.getItem("userName");
+    if (storedName) {
+      document.getElementById("userName").innerText = storedName;
+    }
+
+    // Logout trigger
+    document.getElementById("logoutBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      if(confirm("Apakah Anda ingin keluar dari sistem?")) {
+        localStorage.removeItem("userLoggedIn");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

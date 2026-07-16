@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Kambing Baru - Smart Livestock System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    if (localStorage.getItem("userLoggedIn") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+  <style>
+    /* Reader status card styling */
+    .reader-card {
+      background-color: #ecfdf5;
+      border: 1.5px dashed var(--primary);
+      border-radius: var(--border-radius-md);
+      padding: 16px 24px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .reader-pulse {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      border: 2px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .reader-pulse::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .reader-pulse-inner {
+      width: 14px;
+      height: 14px;
+      background-color: var(--primary);
+      border-radius: 50%;
+    }
+    .reader-info h5 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .reader-info p {
+      font-size: 12px;
+      color: var(--primary-dark);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .reader-input-box {
+      flex: 1;
+      position: relative;
+    }
+    .reader-input-box input {
+      background-color: #ffffff;
+      border-color: #a7f3d0;
+      font-weight: 600;
+      font-family: monospace;
+      color: var(--primary-dark);
+    }
+    
+    /* Segment headers */
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 24px 0 16px 0;
+      border-bottom: 1.5px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+    
+    /* Styled gender group radio */
+    .gender-radio-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .gender-radio-card {
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 600;
+      transition: all var(--transition-speed);
+      background-color: #f8fafc;
+    }
+    .gender-radio-card img {
+      width: 18px;
+      height: 18px;
+    }
+    .gender-radio-card:hover {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+    }
+    .gender-radio-card.active {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+    }
+    
+    /* Action row buttons */
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigasi -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/icons/logo.png" alt="Smart Livestock Logo" class="logo-icon" onerror="this.src='assets/icons/profile.png'">
+        <h3>LivestockPro</h3>
+      </div>
+      <hr>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link" id="menu-dashboard">
+          <img src="assets/icons/dashboard.png" alt="Dashboard">
+          <span>Dashboard</span>
+        </a>
+        <a href="goat.html" class="nav-link active" id="menu-goat">
+          <img src="assets/icons/goat.png" alt="Goat List">
+          <span>Goat List</span>
+        </a>
+        <a href="weighing.html" class="nav-link" id="menu-weighing">
+          <img src="assets/icons/weighing.png" alt="Weighing">
+          <span>Weighing</span>
+        </a>
+        <a href="notifications.html" class="nav-link" id="menu-notifications">
+          <img src="assets/icons/application.png" alt="Notifications">
+          <span>Notifications</span>
+        </a>
+        <a href="settings.html" class="nav-link" id="menu-settings">
+          <img src="assets/icons/settings.png" alt="Settings">
+          <span>Settings</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <img src="assets/icons/user.png" alt="Avatar" class="user-avatar" id="userAvatar">
+          <div class="user-info">
+            <span class="user-name">Manager</span>
+            <span class="user-role">Livestock Manager</span>
+          </div>
+          <a href="#" id="logoutBtn" class="logout-btn" title="Keluar">
+            <img src="assets/icons/logout.png" alt="Logout">
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Mobile viewport) -->
+    <div class="bottom-nav">
+      <a href="index.html" class="bottom-nav-link">
+        <img src="assets/icons/dashboard.png" alt="Dashboard">
+        <span>Dashboard</span>
+      </a>
+      <a href="goat.html" class="bottom-nav-link active">
+        <img src="assets/icons/goat.png" alt="Goats">
+        <span>Goats</span>
+      </a>
+      <a href="weighing.html" class="bottom-nav-link">
+        <img src="assets/icons/weighing.png" alt="Weighing">
+        <span>Weighing</span>
+      </a>
+      <a href="notifications.html" class="bottom-nav-link">
+        <img src="assets/icons/application.png" alt="Alerts">
+        <span>Alerts</span>
+      </a>
+      <a href="settings.html" class="bottom-nav-link">
+        <img src="assets/icons/settings.png" alt="Settings">
+        <span>Settings</span>
+      </a>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="main-content">
+      
+      <!-- Back Link -->
+      <div style="margin-bottom: 24px;">
+        <a href="goat.html" style="text-decoration: none; color: var(--primary-dark); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; font-size: 14px;">
+          ← Back to Goat List
+        </a>
+      </div>
+
+      <!-- Header Bar -->
+      <div class="header-bar" style="margin-bottom: 24px;">
+        <div class="title-section">
+          <h2>Register Livestock</h2>
+          <p>Add a new animal to your managed system.</p>
+        </div>
+        <div>
+          <span class="badge badge-success" style="font-size: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px;">
+            ☁ SYSTEM ONLINE
+          </span>
+        </div>
+      </div>
+
+      <!-- Main Form Container -->
+      <div class="card" style="max-width: 680px; margin: 0 auto;">
+        
+        <!-- Status Box -->
+        <div id="messageBox" class="msg-box"></div>
+
+        <!-- Simulator RFID Scanner Banner -->
+        <div class="reader-card">
+          <div class="reader-pulse">
+            <div class="reader-pulse-inner"></div>
+          </div>
+          <div class="reader-info">
+            <h5>Reader Status</h5>
+            <p id="scanStatus">Scanning...</p>
+          </div>
+          <div class="reader-input-box">
+            <input type="text" id="rfid" class="form-control" placeholder="Awaiting tag detection near sensor..." readonly>
+          </div>
+          <div>
+            <button class="btn btn-secondary btn-sm" id="btnSimulateScan" style="font-size: 12px; padding: 10px;">
+              📡 Mock Tag
+            </button>
+          </div>
+        </div>
+
+        <form id="registerGoatForm">
+          
+          <div class="section-title">Identification Data</div>
+          
+          <!-- Form Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            
+            <!-- Name -->
+            <div class="form-group" style="grid-column: span 2;">
+              <label for="name">Name / Alias (Optional)</label>
+              <input type="text" id="name" class="form-control" required placeholder="e.g. Bessie, G-042">
+            </div>
+
+            <!-- Breed: datalist (pilih list atau ketik manual) -->
+            <div class="form-group">
+              <label for="breed">Breed / Jenis Kambing</label>
+              <input type="text" id="breed" class="form-control" required
+                     list="breedList" placeholder="Pilih atau ketik jenis kambing...">
+              <datalist id="breedList">
+                <option value="Moreno">
+                <option value="Ersip">
+                <option value="Bulu Bakar">
+                <option value="Dolfer Sulfok">
+                <option value="Kambing Sayur">
+              </datalist>
+              <small style="color:var(--text-muted); font-size:11px; margin-top:4px; display:block;">
+                Pilih dari daftar atau ketik jenis kambing baru secara manual.
+              </small>
+            </div>
+
+            <!-- Birth Date -->
+            <div class="form-group">
+              <label for="birthDate">Estimated Birth Date</label>
+              <input type="date" id="birthDate" class="form-control" required>
+            </div>
+
+            <!-- Gender Buttons group -->
+            <div class="form-group" style="grid-column: span 2;">
+              <label>Gender</label>
+              <div class="gender-radio-group">
+                <div class="gender-radio-card" data-value="Jantan" id="genderMale">
+                  <img src="assets/icons/male.png" alt="Male Icon">
+                  Male
+                </div>
+                <div class="gender-radio-card" data-value="Betina" id="genderFemale">
+                  <img src="assets/icons/femenine.png" alt="Female Icon">
+                  Female
+                </div>
+              </div>
+              <input type="hidden" id="gender" required>
+            </div>
+
+          </div>
+
+          <div class="section-title">Initial Assignment</div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Pen / Cage -->
+            <div class="form-group">
+              <label for="cage">Assigned Pen / Zone</label>
+              <select id="cage" class="form-control" required>
+                <option value="">Select location...</option>
+                <option value="Kandang A">Kandang A</option>
+                <option value="Kandang B">Kandang B</option>
+                <option value="Kandang C">Kandang C</option>
+              </select>
+            </div>
+
+            <!-- Health Baseline -->
+            <div class="form-group">
+              <label for="healthBaseline">Health Status Baseline</label>
+              <select id="healthBaseline" class="form-control">
+                <option value="Healthy">Healthy / Active</option>
+                <option value="Monitoring">Monitoring Required</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="form-actions">
+            <a href="goat.html" class="btn btn-secondary">CANCEL FORM</a>
+            <button type="submit" class="btn btn-primary"
+                    style="display:inline-flex; align-items:center; gap:8px;">
+              <img src="assets/icons/diskette.png" alt="Simpan"
+                   style="width:16px; height:16px; filter:brightness(0) invert(1);"
+                   onerror="this.style.display='none'">
+              SIMPAN TERNAK
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module" src="js/register.js"></script>
+  <script type="module">
+    // Display userName from localstorage
+    const storedName = localStorage.getItem("userName");
+    if (storedName) {
+      document.getElementById("userName").innerText = storedName;
+    }
+
+    // Logout trigger
+    document.getElementById("logoutBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      if(confirm("Apakah Anda ingin keluar dari sistem?")) {
+        localStorage.removeItem("userLoggedIn");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

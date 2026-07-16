@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Smart Livestock System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    if (localStorage.getItem("userLoggedIn") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
+  <style>
+    /* ─── Stat Card (compact, flat, no hover) ─── */
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-card-label .label-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-card-label .label-icon img {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+
+    .stat-card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1;
+      margin-top: 4px;
+    }
+
+    .stat-card-sub {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Accent borders kiri per status */
+    .stat-card.accent-green  { border-left: 3px solid var(--color-success); }
+    .stat-card.accent-blue   { border-left: 3px solid var(--color-info); }
+    .stat-card.accent-orange { border-left: 3px solid var(--color-warning); }
+    .stat-card.accent-red    { border-left: 3px solid var(--color-danger); }
+    .stat-card.accent-neutral { border-left: 3px solid #94a3b8; }
+
+    /* ─── Stats Grid — 5 kolom ─── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1100px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Dashboard 2-kolom bawah ─── */
+    .dashboard-lower {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .dashboard-lower { grid-template-columns: 1fr; }
+    }
+
+    /* ─── ADG panel minimalis ─── */
+    .adg-panel {
+      background: linear-gradient(160deg, #064e3b 0%, #0f172a 100%);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+    }
+    .adg-panel::before {
+      content: '';
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .adg-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+    }
+    .adg-value {
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 10px 0 6px;
+      line-height: 1;
+    }
+    .adg-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.5;
+      max-width: 220px;
+    }
+    .adg-footer {
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 16px;
+    }
+
+    /* ─── Activity list ─── */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .section-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .section-header a {
+      font-size: 12px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .activity-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      transition: background var(--transition-speed);
+    }
+
+    .activity-row:last-child { margin-bottom: 0; }
+
+    .activity-row:hover { background: #f1f5f9; }
+
+    .activity-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .activity-info h5 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .activity-info p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .activity-weight {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    /* Page header compact */
+    .page-header {
+      margin-bottom: 20px;
+    }
+    .page-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .page-header p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ═══ SIDEBAR (Desktop) ═══ -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/icons/logo.png" alt="Logo" class="logo-icon"
+             onerror="this.src='assets/icons/profile.png'">
+        <h3>LivestockPro</h3>
+      </div>
+      <hr>
+      <div class="nav-links">
+        <a href="index.html"         class="nav-link active">
+          <img src="assets/icons/dashboard.png"   alt="Dashboard"> <span>Dashboard</span>
+        </a>
+        <a href="goat.html"          class="nav-link">
+          <img src="assets/icons/goat.png"        alt="Goat List"> <span>Goat List</span>
+        </a>
+        <a href="weighing.html"      class="nav-link">
+          <img src="assets/icons/weighing.png"    alt="Weighing">  <span>Weighing</span>
+        </a>
+        <a href="notifications.html" class="nav-link">
+          <img src="assets/icons/application.png" alt="Notif">     <span>Notifications</span>
+        </a>
+        <a href="settings.html"      class="nav-link">
+          <img src="assets/icons/settings.png"    alt="Settings">  <span>Settings</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <img src="assets/icons/user.png" alt="Avatar" class="user-avatar">
+          <div class="user-info">
+            <span class="user-name">Manager</span>
+            <span class="user-role">Livestock Manager</span>
+          </div>
+          <a href="#" id="logoutBtn" class="logout-btn" title="Keluar">
+            <img src="assets/icons/logout.png" alt="Logout">
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ═══ BOTTOM NAV (Mobile) ═══ -->
+    <div class="bottom-nav">
+      <a href="index.html"         class="bottom-nav-link active">
+        <img src="assets/icons/dashboard.png"   alt="Dashboard"> <span>Dashboard</span>
+      </a>
+      <a href="goat.html"          class="bottom-nav-link">
+        <img src="assets/icons/goat.png"        alt="Goats">     <span>Goats</span>
+      </a>
+      <a href="weighing.html"      class="bottom-nav-link">
+        <img src="assets/icons/weighing.png"    alt="Weighing">  <span>Weighing</span>
+      </a>
+      <a href="notifications.html" class="bottom-nav-link">
+        <img src="assets/icons/application.png" alt="Alerts">    <span>Alerts</span>
+      </a>
+      <a href="settings.html"      class="bottom-nav-link">
+        <img src="assets/icons/settings.png"    alt="Settings">  <span>Settings</span>
+      </a>
+    </div>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h2>Overview</h2>
+            <p>Real-time monitoring. Diperbarui: <span id="lastUpdated">–</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 5 Stat Cards ─── -->
+      <div class="stats-row">
+
+        <!-- 1. Total Goats -->
+        <div class="stat-card accent-neutral">
+          <div class="stat-card-label">
+            <span>Total Kambing</span>
+            <div class="label-icon" style="background:#94a3b8;">
+              <img src="assets/icons/goat.png" alt="">
+            </div>
+          </div>
+          <div class="stat-card-value" id="statTotal">–</div>
+          <div class="stat-card-sub">Semua kambing aktif</div>
+        </div>
+
+        <!-- 2. Sudah Ditimbang -->
+        <div class="stat-card accent-blue">
+          <div class="stat-card-label">
+            <span>Sudah Ditimbang</span>
+            <div class="label-icon" style="background:var(--color-info);">
+              <img src="assets/icons/weighing.png" alt="">
+            </div>
+          </div>
+          <div class="stat-card-value" id="statWeighed" style="color:var(--color-info);">–</div>
+          <div class="stat-card-sub" id="subWeighed">Dalam periode timbang</div>
+        </div>
+
+        <!-- 3. Belum Ditimbang -->
+        <div class="stat-card accent-orange">
+          <div class="stat-card-label">
+            <span>Belum Ditimbang</span>
+            <div class="label-icon" style="background:var(--color-warning);">
+              <img src="assets/icons/weighing.png" alt="">
+            </div>
+          </div>
+          <div class="stat-card-value" id="statUnweighed" style="color:var(--color-warning);">–</div>
+          <div class="stat-card-sub" id="subUnweighed">Melebihi batas periode</div>
+        </div>
+
+        <!-- 4. Kondisi Normal -->
+        <div class="stat-card accent-green">
+          <div class="stat-card-label">
+            <span>Kondisi Baik</span>
+            <div class="label-icon" style="background:var(--color-success);">
+              <img src="assets/icons/application.png" alt="">
+            </div>
+          </div>
+          <div class="stat-card-value" id="statNormal" style="color:var(--color-success);">–</div>
+          <div class="stat-card-sub">✔ ADG normal</div>
+        </div>
+
+        <!-- 5. Perlu Perhatian -->
+        <div class="stat-card accent-red">
+          <div class="stat-card-label">
+            <span>Perlu Perhatian</span>
+            <div class="label-icon" style="background:var(--color-danger);">
+              <img src="assets/icons/application.png" alt="">
+            </div>
+          </div>
+          <div class="stat-card-value" id="statCritical" style="color:var(--color-danger);">–</div>
+          <div class="stat-card-sub">⚠ ADG rendah / kritis</div>
+        </div>
+
+      </div><!-- /stats-row -->
+
+      <!-- ─── Lower Section: ADG + Recent Activity ─── -->
+      <div class="dashboard-lower">
+
+        <!-- ADG Summary Panel -->
+        <div class="adg-panel">
+          <div>
+            <div class="adg-label">Average Daily Gain (ADG)</div>
+            <div class="adg-value" id="avgAdgText">0.00 kg/d</div>
+            <div class="adg-desc" id="adgDesc">
+              Menghitung rata-rata pertumbuhan harian kawanan…
+            </div>
+          </div>
+          <div class="adg-footer">
+            * Dihitung dari rata-rata ADG semua timbangan terbaru.
+          </div>
+        </div>
+
+        <!-- Recent Weighing Activity -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3>Aktivitas Timbangan Terbaru</h3>
+            <a href="goat.html">Lihat Semua →</a>
+          </div>
+          <div id="recentWeighingList">
+            <div style="text-align:center; color:var(--text-muted); padding:30px 0; font-size:13px;">
+              Memuat data…
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /dashboard-lower -->
+
+    </main><!-- /main-content -->
+  </div><!-- /app-container -->
+
+  <script type="module" src="js/dashboard.js"></script>
+  <script type="module">
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", e => {
+      e.preventDefault();
+      if (confirm("Keluar dari sistem?")) {
+        localStorage.removeItem("userLoggedIn");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
+        window.location.href = "login.html";
+      }
+    });
+
+    // User name
+    const name = localStorage.getItem("userName");
+    if (name) document.getElementById("userName").innerText = name;
+  </script>
+</body>
+</html>
