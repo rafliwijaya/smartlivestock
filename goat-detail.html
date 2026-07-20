@@ -524,16 +524,6 @@
 <script type="module">
   const name = localStorage.getItem("userName");
   if (name) document.getElementById("userName").innerText = name;
-
-  document.getElementById("logoutBtn").addEventListener("click", e => {
-    e.preventDefault();
-    if (confirm("Keluar dari sistem?")) {
-      localStorage.removeItem("userLoggedIn");
-      localStorage.removeItem("userEmail");
-      localStorage.removeItem("userName");
-      window.location.href = "login.html";
-    }
-  });
 </script>
 </body>
 </html>

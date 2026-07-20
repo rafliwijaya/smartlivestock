@@ -280,7 +280,7 @@
             <span class="user-name">Manager</span>
             <span class="user-role">Livestock Manager</span>
           </div>
-          <a href="#" id="logoutBtn" class="logout-btn" title="Keluar">
+          <a href="login.html" id="logoutBtn" class="logout-btn" title="Keluar">
             <img src="assets/icons/logout.png" alt="Logout">
           </a>
         </div>
@@ -422,15 +422,15 @@
   <script type="module" src="js/dashboard.js"></script>
   <script type="module">
     // Logout
-    document.getElementById("logoutBtn").addEventListener("click", e => {
-      e.preventDefault();
-      if (confirm("Keluar dari sistem?")) {
-        localStorage.removeItem("userLoggedIn");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("userName");
-        window.location.href = "login.html";
-      }
-    });
+    // document.getElementById("logoutBtn").addEventListener("click", e => {
+    //   e.preventDefault();
+    //   if (confirm("Keluar dari sistem?")) {
+    //     localStorage.removeItem("userLoggedIn");
+    //     localStorage.removeItem("userEmail");
+    //     localStorage.removeItem("userName");
+    //     window.location.href = "login.html";
+    //   }
+    // });
 
     // User name
     const name = localStorage.getItem("userName");

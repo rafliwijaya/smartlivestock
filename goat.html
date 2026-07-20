@@ -83,7 +83,7 @@
             <span class="user-name">Manager</span>
             <span class="user-role">Livestock Manager</span>
           </div>
-          <a href="#" id="logoutBtn" class="logout-btn" title="Keluar">
+          <a href="login.html" id="logoutBtn" class="logout-btn" title="Keluar">
             <img src="assets/icons/logout.png" alt="Logout">
           </a>
         </div>
@@ -218,16 +218,6 @@
   <script type="module">
     const storedName = localStorage.getItem("userName");
     if (storedName) document.getElementById("userName").innerText = storedName;
-
-    document.getElementById("logoutBtn").addEventListener("click", (e) => {
-      e.preventDefault();
-      if (confirm("Apakah Anda ingin keluar dari sistem?")) {
-        localStorage.removeItem("userLoggedIn");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("userName");
-        window.location.href = "login.html";
-      }
-    });
   </script>
 </body>
 </html>
